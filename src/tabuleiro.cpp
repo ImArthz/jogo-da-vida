@@ -1,174 +1,153 @@
 #include "tabuleiro.hpp"
-#include <iostream>
-#include <fstream> // Para trabalhar com arquivos
-#include <cstdlib> // Para a função rand()
-#include <ctime>   // Para a função time()
-using namespace std;
-Tabuleiro::Tabuleiro(short int tamanho ):tamanho(tamanho){}
-Tabuleiro::Tabuleiro();
-short int Tabuleiro::getTam()
-{
-    return tamanho;
-}
-void Tabuleiro::setTam(short int tamanho)
-{
-    this->tamanho=tamanho;
-}
-void Tabuleiro::gerador_matriz(short int tamanho)
-{
-    int matriz[tamanho][tamanho];
+Tabuleiro::Tabuleiro(){}
 
-    // Inicializa a semente para gerar números aleatórios
-    std::srand(std::time(nullptr));
-
-    // Preenche a matriz com valores aleatórios de 0 ou 1
-    for (short int i = 0; i < tamanho; ++i) {
-        for (short int j = 0; j < tamanho; ++j) {
-            matriz[i][j] = std::rand() % 2; // Gera 0 ou 1
-        }
-    }
-
-    // Salva a matriz em um arquivo chamado "input.mps"
-    std::ofstream arquivo("input.mps");
-    if (arquivo.is_open()) {
-        arquivo << "["<<tamanho<<"]["<<tamanho<<"]"<<endl;
-        for (short int i = 0; i < tamanho; ++i) {
-            for (short int j = 0; j < tamanho; ++j) {
-                arquivo << matriz[i][j] << " ";
-            }
-            arquivo <<endl;
-        }
-        arquivo.close();
-        cout << "Matriz salva com sucesso no arquivo input.mps!" << std::endl;
-    } else {
-        cerr << "Erro ao abrir o arquivo para escrita." << std::endl;
-    }
-
-}
-void Tabuleiro::guardar_relatorio(int geracao,short int matriz_atual)
+bool checarIgualdade(int **tabuleiro, int **sub_tabuleiro, int tamanho)
 {
-    std:ofstream arquivo("output.mps");
-    if(arquivo.is_open())
+    for(short int i = 0;i < tamanho; i++)
     {
-        arquivo << " Geração atual : "<<geracao<<endl;
-        for (short int i = 0; i < tamanho; ++i) {
-            for (short int j = 0; j < tamanho; ++j) {
-                arquivo<<matriz_atual[i][j] << " ";
-            }
-            arquivo <<endl;
+        for(short int j = 0; j< tamanho; j++)
+        {
+            if(tabuleiro[i][j]!=sub_tabuleiro[i][j])
+                return false;
         }
-        arquivo.close();
-        // arrumar um jeito de pular as gerações 
-        cout << "Matriz salva com sucesso no arquivo input.mps!" << std::endl;
-    } else {
-        cerr << "Erro ao abrir o arquivo para escrita." << std::endl;
+    }
 
+    return true;
+}
+
+int verificacao(short int **tabuleiro, int x,  int y, int tamanho)
+{
+    int quantidade = 0;
+
+    for(short int i = 0; i< tamanho; i++)
+    {
+        for(short int j = 0; j < tamanho; j++)
+        {
+            
+            if(i == (x-1) && j == (y-1) && tabuleiro[i][j]==1)
+                quantidade++;
+            
+            if(i == (x-1) && j == (y) && tabuleiro[i][j]==1)
+                quantidade++;
+            
+            if(i == (x-1) && j == (y+1) && tabuleiro[i][j]==1)
+                quantidade++;
+            
+            if(i == (x) && j == (y-1) && tabuleiro[i][j]==1)
+                quantidade++;
+            
+            if(i == (x) && j == (y+1) && tabuleiro[i][j]==1)
+                quantidade++;
+            
+            if(i == (x+1) && j == (y-1) && tabuleiro[i][j]==1)
+                quantidade++;
+            
+            if(i == (x+1) && j == (y) && tabuleiro[i][j]==1)
+                quantidade++;
+            
+            if(i == (x+1) && j == (y+1) && tabuleiro[i][j]==1)
+                quantidade++;
+        }
+    }
+
+    return quantidade;
+}
+
+
+void Tabuleiro::show(int **tabuleiro, int tamanho){
+    for(short int i  = 0; i < tamanho; i++)
+    {
+        for(short int j = 0; j< tamanho; j++)
+        {
+            cout<<tabuleiro[i][j];
+        }
+        cout<<endl;
     }
 }
-void Tabuleiro::calcular_proxima_geracao(int n_geracoes)
-{
-    short int cont = 0;
-    int aux_regras = 0;
-    int aux_reprod = 0;
-    while (cont < n_geracoes){
-        if (cont = 0)
-        {
-            // ler arquivo input.mps
-            // salvar em matriz[][]
-            short int matriz[tamanho][tamanho];
-            for (short int i = 0; i <tamanho; ++i)
-            {
-                for (short int j = 0 ; j = tamanho; j++)
-                {
-                    if (matriz[i][j] == 1 && matriz[i+1][j] == 1 )
-                    {
-                        aux_regras +=1;
-                    }
-                    if (matriz[i][j] == 1 && matriz[i+1][j+1] == 1 )
-                    {
-                        aux_regras +=1;
-                    }
-                    if (matriz[i][j] == 1 && matriz[i][j+1] == 1 )
-                    {
-                        aux_regras +=1;
-                    }
-                    if (matriz[i][j] == 1 && matriz[i-1][j] == 1 )
-                    {
-                        if (i !== 0 )
-                        {
-                            aux_regras +=1;
-                        }
-                    }
-                    if (matriz[i][j] == 1 && matriz[i-1][j-1] == 1 )
-                    {
-                        if (i !== 0 && j != 0)
-                        {
-                            aux_regras +=1;
-                        }
-                    }
-                    if (matriz[i][j] == 1 && matriz[i-1][j-0] == 1 )
-                    {
-                        if (j != 0)
-                        {
-                            aux_regras +=1;
-                        }
-                    }
-                    if (aux_regras < 2)
-                    {
-                        cout<<"Morreu de solidão"<<endl;//guardar no relatorio
-                    }
-                    if (aux_regras > 3)
-                    {
-                        cout<<"Morreu de superlotação"<<endl;//guardar no relariorio
-                    }
-                    if (matriz[i][j] == 0 && matriz [i+1][j])
-                    {
-                        aux_reprod += 1;
-                    }
-                    if (matriz[i][j] == 0 && matriz [i+1][j+1])
-                    {
-                        aux_reprod += 1;
-                    }
-                    if (matriz[i][j] == 0 && matriz [i][j+1])
-                    {
-                        aux_reprod += 1;
-                    }
-                    if (matriz[i][j] == 0 && matriz [i-1][j])
-                    {
-                        if(i != 0)
-                        {
-                            aux_reprod += 1;
-                        }
-                    }
-                    if (matriz[i][j] == 0 && matriz [i-1][j-1])
-                    {
-                        if(i != 0 && j!= 0)
-                        {
-                            aux_reprod += 1;
-                        }
-                    }
-                    if (matriz[i][j] == 0 && matriz [i][j-1])
-                    {
-                        if(j != 0)
-                        {
-                            aux_reprod += 1;
-                        }
-                    }
-                    if ( aux_reprod == 3)
-                    {
-                        cout<<"Ocorreu reprodução "<<endl;//guardar relatorio
-                    }
 
+void Tabuleiro::relatorio(int **tabuleiro, int tamanho,  FileManager *arquivo, string mensagem, bool transferir){
+    cout<<mensagem;
+
+    if(transferir)
+    {
+        show(tabuleiro, tamanho);
+        arquivo->Output(tabuleiro);
+    }
+}
+
+void Tabuleiro::iniciarJogo(int **tabuleiro, int interacao, FileManager *arquivo)
+{
+    int aux_de_interacao = 0;
+    int tamanho = arquivo->getTamanho();
+
+    int **sub_tabuleiro = arquivo->criarTabuleiro();
+
+    relatorio(tabuleiro, tamanho, arquivo, "Starting", true);
+
+    while(aux_de_interacao < interacao)
+    {
+        aux_de_interacao ++;
+
+        for(int i = 0; i< tamanho; i++)
+        {
+            for(int j = 0; j < tamanho; j++)
+            {
+                int quantidade = verificacao(tabuleiro, i,  j, tamanho);
+
+                if(tabuleiro[i][j]==1){
                     
+                    if(quantidade < 2)
+                    {
+                        sub_tabuleiro[i][j]= 0;
+                        relatorio(sub_tabuleiro, tamanho, arquivo, "Posição [" + to_string(i) + " - " + to_string(j) + "] morte por solidão\n");
+                    }
+                  
+                    else if( quantidade > 3)
+                    {
+                        sub_tabuleiro[i][j]= 0;
+                        relatorio(sub_tabuleiro, tamanho, arquivo, "Posição [" + to_string(i) + " - " + to_string(j) + "] morte por superlotação\n");
+                    }
+                    
+                    else{
+                        sub_tabuleiro[i][j]= 1;
+                        relatorio(sub_tabuleiro, tamanho, arquivo, "Posição [" + to_string(i) + " - " + to_string(j) + "] Fica vivo\n");
+                    }
+                }
+                else{
+                    
+                    if(quantidade == 3)
+                    {
+                        sub_tabuleiro[i][j]= 1;
+                        relatorio(sub_tabuleiro, tamanho, arquivo, "Posição [" + to_string(i) + " - " + to_string(j) + "] vivo por reprodução\n");
+                    }
+                    else
+                    {
+                        sub_tabuleiro[i][j]= 0;
+                        
+                    }
                 }
             }
         }
-        else 
+
+        
+        if(checarIgualdade(tabuleiro, sub_tabuleiro, tamanho))
         {
-            //ler arquivo output da geração anterior
+            relatorio(tabuleiro, tamanho, arquivo,"Mesmo Matriz que a anterior\n");
+            break;
         }
 
+        for (short int i = 0; i < tamanho; i++)
+        {
+            for(short int j = 0; j < tamanho; j++)
+            {
+                tabuleiro[i][j]= sub_tabuleiro[i][j];
+            }
+        }
+
+        relatorio(tabuleiro, tamanho, arquivo, to_string(aux_de_interacao )+"° Interação: \n", true);
 
     }
+    relatorio(tabuleiro, tamanho, arquivo,"Ending ... ", true);
 
+    delete sub_tabuleiro;
 }
